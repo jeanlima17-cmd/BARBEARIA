@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { format, addDays, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -16,6 +17,7 @@ import {
   Settings as SettingsIcon,
   RefreshCw,
   AlertCircle,
+  LogOut,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -31,12 +33,27 @@ import {
 } from "@/lib/utils";
 
 export default function AdminPage() {
+  const router = useRouter();
+  const [authChecking, setAuthChecking] = useState(true);
   const [activeTab, setActiveTab] = useState<"agenda" | "config">("agenda");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [settings, setSettings] = useState<BarbershopSettings | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Verificar se o barbeiro está logado
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.replace("/admin/login");
+        return;
+      }
+      setAuthChecking(false);
+    }
+    checkAuth();
+  }, [router]);
 
   // Inicializa data atual no cliente
   useEffect(() => {
@@ -221,10 +238,26 @@ export default function AdminPage() {
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace("/admin/login");
+  };
+
   // Próximos 5 dias para navegação rápida
   const quickDays = selectedDate
     ? Array.from({ length: 5 }, (_, i) => addDays(selectedDate, i))
     : [];
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-neutral-400">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+          <p className="text-xs">Verificando autorização...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 pb-20">
@@ -259,6 +292,13 @@ export default function AdminPage() {
               title="Atualizar"
             >
               <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-lg border border-red-900/40 bg-neutral-900 text-red-400 hover:bg-red-950/40 hover:border-red-700/60 transition-all"
+              title="Sair / Encerrar Sessão"
+            >
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
