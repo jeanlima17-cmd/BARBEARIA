@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview Interativo - Barbearia</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            amber: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #262626;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 bg-neutral-950">
+
+  <!-- Topo com Troca de Modo (Cliente vs Barbeiro) -->
+  <div class="max-w-md mx-auto w-full mb-4">
+    <div class="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-1.5 flex gap-1 shadow-lg">
+      <button id="tab-client-btn" onclick="switchView('client')" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-amber-500 text-black flex items-center justify-center gap-1.5">
+        <i data-lucide="smartphone" class="w-4 h-4"></i>
+        Visão do Cliente
+      </button>
+      <button id="tab-admin-btn" onclick="switchView('admin')" class="flex-1 py-2 text-xs font-semibold rounded-xl transition-all text-neutral-400 hover:text-white flex items-center justify-center gap-1.5">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        Painel do Barbeiro
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTAINER VISÃO DO CLIENTE -->
+  <div id="view-client" class="max-w-md mx-auto w-full flex-1 flex flex-col justify-between">
+    <div>
+      <!-- Header Barbearia -->
+      <header class="text-center mb-6 pt-2">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 mb-2 shadow-lg shadow-amber-500/5">
+          <i data-lucide="scissors" class="w-7 h-7"></i>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-white" id="display-shop-name">Barbearia do Amigo</h1>
+        <p class="text-xs text-neutral-400 flex items-center justify-center gap-1.5 mt-1">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span id="display-shop-address">Rua Principal, 123 - Centro</span>
+        </p>
+      </header>
+
+      <!-- Indicador de Passos -->
+      <div id="steps-indicator" class="flex items-center justify-between mb-6 px-4">
+        <div class="flex items-center">
+          <div id="step-badge-1" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-amber-500 text-black shadow-md shadow-amber-500/20">1</div>
+          <div id="step-line-1" class="w-16 h-0.5 mx-2 bg-neutral-800"></div>
+          <div id="step-badge-2" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-neutral-900 text-neutral-500 border border-neutral-800">2</div>
+          <div id="step-line-2" class="w-16 h-0.5 mx-2 bg-neutral-800"></div>
+          <div id="step-badge-3" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-neutral-900 text-neutral-500 border border-neutral-800">3</div>
+        </div>
+      </div>
+
+      <!-- ETAPA 1: SERVIÇOS -->
+      <div id="client-step-1" class="space-y-4">
+        <div>
+          <h2 class="text-base font-semibold text-white">Escolha um serviço</h2>
+          <p class="text-xs text-neutral-400">Selecione o corte ou procedimento desejado</p>
+        </div>
+
+        <div class="space-y-2.5" id="services-list">
+          <div onclick="selectService('Corte Social & Degradê', 35, 30, this)" class="service-card cursor-pointer p-3.5 rounded-xl border border-neutral-800 bg-neutral-900/80 hover:border-neutral-700 flex justify-between items-center transition-all">
+            <div>
+              <h3 class="font-medium text-neutral-100 text-sm">Corte Social & Degradê</h3>
+              <p class="text-xs text-neutral-400 mt-0.5">Corte na tesoura ou máquina com acabamento impecável</p>
+              <div class="flex items-center gap-1.5 text-xs text-neutral-500 mt-2">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-neutral-400"></i>
+                <span>30 min</span>
+              </div>
+            </div>
+            <div class="text-right pl-3">
+              <span class="text-base font-bold text-amber-400">R$ 35,00</span>
+            </div>
+          </div>
+
+          <div onclick="selectService('Barba Completa', 25, 20, this)" class="service-card cursor-pointer p-3.5 rounded-xl border border-neutral-800 bg-neutral-900/80 hover:border-neutral-700 flex justify-between items-center transition-all">
+            <div>
+              <h3 class="font-medium text-neutral-100 text-sm">Barba Completa</h3>
+              <p class="text-xs text-neutral-400 mt-0.5">Modelagem com toalha quente e lâmina</p>
+              <div class="flex items-center gap-1.5 text-xs text-neutral-500 mt-2">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-neutral-400"></i>
+                <span>20 min</span>
+              </div>
+            </div>
+            <div class="text-right pl-3">
+              <span class="text-base font-bold text-amber-400">R$ 25,00</span>
+            </div>
+          </div>
+
+          <div onclick="selectService('Combo Cabelo + Barba', 55, 50, this)" class="service-card cursor-pointer p-3.5 rounded-xl border border-neutral-800 bg-neutral-900/80 hover:border-neutral-700 flex justify-between items-center transition-all">
+            <div>
+              <h3 class="font-medium text-neutral-100 text-sm">Combo Cabelo + Barba</h3>
+              <p class="text-xs text-neutral-400 mt-0.5">O pacote completo com desconto especial</p>
+              <div class="flex items-center gap-1.5 text-xs text-neutral-500 mt-2">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-neutral-400"></i>
+                <span>50 min</span>
+              </div>
+            </div>
+            <div class="text-right pl-3">
+              <span class="text-base font-bold text-amber-400">R$ 55,00</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-to-step-2" disabled onclick="goToClientStep(2)" class="w-full mt-4 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/10">
+          Avançar para Horário
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- ETAPA 2: DATA E HORÁRIO -->
+      <div id="client-step-2" class="space-y-5 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-semibold text-white">Escolha data e horário</h2>
+            <p class="text-xs text-neutral-400" id="step2-service-label">Serviço: Corte</p>
+          </div>
+          <button onclick="goToClientStep(1)" class="text-xs text-amber-400 hover:underline">Alterar</button>
+        </div>
+
+        <div>
+          <label class="text-xs font-medium text-neutral-400 mb-2 block flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-500"></i>
+            Selecione o Dia
+          </label>
+          <div class="grid grid-cols-4 gap-2" id="days-selector">
+            <!-- Gerado via Script -->
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-medium text-neutral-400 mb-2 block flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i>
+            Horários Livres
+          </label>
+          <div class="grid grid-cols-3 gap-2 max-h-52 overflow-y-auto custom-scroll pr-1" id="slots-selector">
+            <!-- Gerado via Script -->
+          </div>
+        </div>
+
+        <button id="btn-to-step-3" disabled onclick="goToClientStep(3)" class="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/10">
+          Avançar para Identificação
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- ETAPA 3: DADOS DO CLIENTE -->
+      <div id="client-step-3" class="space-y-4 hidden">
+        <div>
+          <h2 class="text-base font-semibold text-white">Seus dados</h2>
+          <p class="text-xs text-neutral-400">Preencha para confirmarmos seu agendamento</p>
+        </div>
+
+        <div class="p-3 bg-neutral-900 border border-neutral-800 rounded-xl space-y-1.5 text-xs">
+          <div class="flex justify-between text-neutral-300">
+            <span>Serviço:</span>
+            <span class="font-semibold text-white" id="step3-service-summary">-</span>
+          </div>
+          <div class="flex justify-between text-neutral-300">
+            <span>Data & Horário:</span>
+            <span class="font-semibold text-amber-400" id="step3-datetime-summary">-</span>
+          </div>
+          <div class="flex justify-between text-neutral-300">
+            <span>Valor:</span>
+            <span class="font-bold text-white" id="step3-price-summary">-</span>
+          </div>
+        </div>
+
+        <form onsubmit="handleClientSubmit(event)" class="space-y-3 pt-1">
+          <div>
+            <label class="text-xs font-medium text-neutral-300 mb-1.5 block flex items-center gap-1.5">
+              <i data-lucide="user" class="w-3.5 h-3.5 text-amber-500"></i>
+              Seu Nome Completo
+            </label>
+            <input type="text" id="client-input-name" required placeholder="Ex: Lucas Gabriel" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-neutral-300 mb-1.5 block flex items-center gap-1.5">
+              <i data-lucide="phone" class="w-3.5 h-3.5 text-amber-500"></i>
+              WhatsApp / Celular
+            </label>
+            <input type="tel" id="client-input-phone" required placeholder="(49) 99999-9999" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+          </div>
+
+          <div class="pt-2 flex gap-2">
+            <button type="button" onclick="goToClientStep(2)" class="w-1/3 py-3 rounded-xl border border-neutral-800 bg-neutral-900 text-xs font-medium text-neutral-300">
+              Voltar
+            </button>
+            <button type="submit" class="w-2/3 bg-amber-500 hover:bg-amber-400 text-black font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/10">
+              Concluir Agendamento
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ETAPA 4: SUCESSO & BOTAO WHATSAPP -->
+      <div id="client-step-4" class="text-center space-y-4 pt-3 hidden">
+        <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/10">
+          <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+        </div>
+
+        <div>
+          <h2 class="text-xl font-bold text-white">Horário Reservado!</h2>
+          <p class="text-xs text-neutral-400 mt-1">Seu agendamento foi registrado com sucesso.</p>
+        </div>
+
+        <div class="p-4 bg-neutral-900/90 border border-neutral-800 rounded-2xl text-left space-y-2 text-xs">
+          <div class="flex justify-between border-b border-neutral-800 pb-2">
+            <span class="text-neutral-400">Cliente:</span>
+            <span class="font-semibold text-white" id="success-client-name">-</span>
+          </div>
+          <div class="flex justify-between border-b border-neutral-800 pb-2">
+            <span class="text-neutral-400">Serviço:</span>
+            <span class="font-semibold text-white" id="success-service-name">-</span>
+          </div>
+          <div class="flex justify-between border-b border-neutral-800 pb-2">
+            <span class="text-neutral-400">Data e Horário:</span>
+            <span class="font-semibold text-amber-400" id="success-datetime">-</span>
+          </div>
+          <div class="flex justify-between pt-1">
+            <span class="text-neutral-400">Valor:</span>
+            <span class="font-bold text-emerald-400" id="success-price">-</span>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <a id="whatsapp-confirm-link" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-emerald-600/20 text-sm">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            Confirmar no WhatsApp do Barbeiro
+          </a>
+          <p class="text-[11px] text-neutral-500 leading-tight">
+            Clique no botão acima para enviar o resumo diretamente ao barbeiro e garantir seu horário!
+          </p>
+        </div>
+
+        <button onclick="goToClientStep(1)" class="mt-4 text-xs text-neutral-400 hover:text-white underline py-2">
+          Fazer novo agendamento
+        </button>
+      </div>
+    </div>
+
+    <footer class="text-center py-4 border-t border-neutral-900 mt-6 text-[11px] text-neutral-600">
+      <p>© 2026 Barbearia • Agendamento inteligente zero custo</p>
+    </footer>
+  </div>
+
+  <!-- CONTAINER PAINEL DO BARBEIRO (ADMIN) -->
+  <div id="view-admin" class="max-w-2xl mx-auto w-full flex-1 hidden">
+    <!-- Header Admin -->
+    <header class="border-b border-neutral-800 bg-neutral-900/50 rounded-2xl p-4 mb-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center">
+          <i data-lucide="scissors" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-white">Painel do Barbeiro</h2>
+          <p class="text-[11px] text-neutral-400">Gerenciamento diário em tempo real</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openWalkInModal()" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-md shadow-amber-500/10">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          + Novo Encaixe
+        </button>
+      </div>
+    </header>
+
+    <!-- Barra de Dias -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-3 custom-scroll" id="admin-days-bar">
+      <!-- Gerado via script -->
+    </div>
+
+    <!-- Lista de Agendamentos -->
+    <div class="space-y-3" id="admin-appointments-list">
+      <!-- Exemplo 1: Agendamento de Cliente -->
+      <div class="p-3.5 rounded-xl border border-neutral-800 bg-neutral-900 flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-bold text-amber-400">09:30</span>
+            <span class="text-[10px] bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded-full font-medium">Agendado</span>
+          </div>
+          <h3 class="font-semibold text-white text-sm mt-1">Matheus Oliveira</h3>
+          <p class="text-xs text-neutral-400 mt-0.5">Corte Social & Degradê • R$ 35,00</p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <a href="https://wa.me/5549999999999?text=Ol%C3%A1%2C%20Matheus!%20Lembrando%20do%20seu%20corte%20hoje%20%C3%A0s%2009%3A30." target="_blank" class="p-2 rounded-lg bg-emerald-950/40 text-emerald-400 border border-emerald-800/50 hover:bg-emerald-900/60" title="Disparar lembrete no WhatsApp">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+          </a>
+          <button onclick="markStatus(this, 'completed')" class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20" title="Concluir">
+            <i data-lucide="check" class="w-4 h-4"></i>
+          </button>
+          <button onclick="markStatus(this, 'cancelled')" class="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20" title="Cancelar">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Exemplo 2: Encaixe Presencial -->
+      <div class="p-3.5 rounded-xl border border-neutral-800 bg-neutral-900 flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-bold text-amber-400">10:30</span>
+            <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-medium border border-amber-500/30">Encaixe Presencial</span>
+          </div>
+          <h3 class="font-semibold text-white text-sm mt-1">Cliente Balcão (Sem nome)</h3>
+          <p class="text-xs text-neutral-400 mt-0.5">Barba Completa • R$ 25,00</p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="markStatus(this, 'completed')" class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20" title="Concluir">
+            <i data-lucide="check" class="w-4 h-4"></i>
+          </button>
+          <button onclick="markStatus(this, 'cancelled')" class="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20" title="Cancelar">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE ENCAIXE RÁPIDO (ADMIN) -->
+  <div id="walkin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+      <div>
+        <h3 class="text-base font-bold text-white">Novo Encaixe Rápido</h3>
+        <p class="text-xs text-neutral-400">Trave o horário na hora. Nome e telefone são opcionais.</p>
+      </div>
+
+      <form onsubmit="handleWalkInSubmit(event)" class="space-y-3">
+        <div>
+          <label class="text-xs font-medium text-neutral-300 mb-1 block">Serviço</label>
+          <select id="modal-service" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+            <option value="Corte Social & Degradê (R$ 35,00)">Corte Social & Degradê (30m)</option>
+            <option value="Barba Completa (R$ 25,00)">Barba Completa (20m)</option>
+            <option value="Combo Cabelo + Barba (R$ 55,00)">Combo Cabelo + Barba (50m)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs font-medium text-neutral-300 mb-1 block">Horário de Início</label>
+          <input type="time" id="modal-time" required value="11:30" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div>
+          <label class="text-xs font-medium text-neutral-400 mb-1 block">Nome do Cliente (opcional)</label>
+          <input type="text" id="modal-name" placeholder="Ex: Rodrigo (ou deixe em branco)" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeWalkInModal()" class="w-1/3 py-2.5 rounded-xl border border-neutral-800 bg-neutral-950 text-xs text-neutral-400 hover:text-white">
+            Cancelar
+          </button>
+          <button type="submit" class="w-2/3 bg-amber-500 hover:bg-amber-400 text-black font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-amber-500/10">
+            Confirmar Encaixe
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Inicializar ícones
+    lucide.createIcons();
+
+    // Estado local da tela de preview
+    let selectedServiceData = null;
+    let selectedDayText = "Hoje";
+    let selectedSlotText = null;
+
+    // Troca de Telas (Cliente vs Barbeiro)
+    function switchView(view) {
+      const clientView = document.getElementById('view-client');
+      const adminView = document.getElementById('view-admin');
+      const clientBtn = document.getElementById('tab-client-btn');
+      const adminBtn = document.getElementById('tab-admin-btn');
+
+      if (view === 'client') {
+        clientView.classList.remove('hidden');
+        adminView.classList.add('hidden');
+        clientBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-amber-500 text-black flex items-center justify-center gap-1.5";
+        adminBtn.className = "flex-1 py-2 text-xs font-semibold rounded-xl transition-all text-neutral-400 hover:text-white flex items-center justify-center gap-1.5";
+      } else {
+        clientView.classList.add('hidden');
+        adminView.classList.remove('hidden');
+        adminBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-amber-500 text-black flex items-center justify-center gap-1.5";
+        clientBtn.className = "flex-1 py-2 text-xs font-semibold rounded-xl transition-all text-neutral-400 hover:text-white flex items-center justify-center gap-1.5";
+      }
+      lucide.createIcons();
+    }
+
+    // Seleção de Serviço
+    function selectService(name, price, duration, element) {
+      selectedServiceData = { name, price, duration };
+      document.querySelectorAll('.service-card').forEach(el => {
+        el.className = 'service-card cursor-pointer p-3.5 rounded-xl border border-neutral-800 bg-neutral-900/80 hover:border-neutral-700 flex justify-between items-center transition-all';
+      });
+      element.className = 'service-card cursor-pointer p-3.5 rounded-xl border border-amber-500/60 bg-amber-500/10 shadow-lg shadow-amber-500/5 ring-1 ring-amber-500/40 flex justify-between items-center transition-all';
+      document.getElementById('btn-to-step-2').disabled = false;
+    }
+
+    // Navegação de Passos do Cliente
+    function goToClientStep(stepNumber) {
+      document.getElementById('client-step-1').classList.add('hidden');
+      document.getElementById('client-step-2').classList.add('hidden');
+      document.getElementById('client-step-3').classList.add('hidden');
+      document.getElementById('client-step-4').classList.add('hidden');
+
+      const indicator = document.getElementById('steps-indicator');
+      if (stepNumber === 4) {
+        indicator.classList.add('hidden');
+      } else {
+        indicator.classList.remove('hidden');
+        updateStepBadges(stepNumber);
+      }
+
+      if (stepNumber === 1) {
+        document.getElementById('client-step-1').classList.remove('hidden');
+      } else if (stepNumber === 2) {
+        document.getElementById('step2-service-label').innerText = `Serviço: ${selectedServiceData.name}`;
+        renderDaysAndSlots();
+        document.getElementById('client-step-2').classList.remove('hidden');
+      } else if (stepNumber === 3) {
+        document.getElementById('step3-service-summary').innerText = selectedServiceData.name;
+        document.getElementById('step3-datetime-summary').innerText = `${selectedDayText} às ${selectedSlotText}`;
+        document.getElementById('step3-price-summary').innerText = `R$ ${selectedServiceData.price.toFixed(2)}`;
+        document.getElementById('client-step-3').classList.remove('hidden');
+      } else if (stepNumber === 4) {
+        document.getElementById('client-step-4').classList.remove('hidden');
+      }
+
+      lucide.createIcons();
+    }
+
+    function updateStepBadges(activeStep) {
+      for (let i = 1; i <= 3; i++) {
+        const badge = document.getElementById(`step-badge-${i}`);
+        if (i === activeStep) {
+          badge.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-amber-500 text-black shadow-md shadow-amber-500/20";
+          badge.innerText = i;
+        } else if (i < activeStep) {
+          badge.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-neutral-800 text-amber-400 border border-amber-500/30";
+          badge.innerText = "✓";
+        } else {
+          badge.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold bg-neutral-900 text-neutral-500 border border-neutral-800";
+          badge.innerText = i;
+        }
+      }
+    }
+
+    // Renderizar Dias e Horários Simulação
+    function renderDaysAndSlots() {
+      const daysContainer = document.getElementById('days-selector');
+      daysContainer.innerHTML = '';
+      const days = [
+        { label: 'Hoje', num: '12' },
+        { label: 'Ter', num: '13' },
+        { label: 'Qua', num: '14' },
+        { label: 'Qui', num: '15' }
+      ];
+
+      days.forEach((d, idx) => {
+        const btn = document.createElement('button');
+        btn.className = idx === 0 
+          ? "p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center bg-amber-500 text-black border-amber-400 font-bold shadow-md shadow-amber-500/20"
+          : "p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center bg-neutral-900 border-neutral-800 text-neutral-300 hover:border-neutral-700";
+        btn.innerHTML = `<span class="text-[10px] uppercase font-semibold">${d.label}</span><span class="text-base font-bold leading-tight mt-0.5">${d.num}</span>`;
+        btn.onclick = () => {
+          selectedDayText = `${d.label} (${d.num}/10)`;
+          renderDaysAndSlots();
+        };
+        daysContainer.appendChild(btn);
+      });
+
+      const slotsContainer = document.getElementById('slots-selector');
+      slotsContainer.innerHTML = '';
+      const slots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:30', '17:30', '18:00'];
+      slots.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = selectedSlotText === s 
+          ? "py-2 px-3 rounded-lg border text-sm font-bold bg-amber-500 text-black border-amber-400 shadow-md shadow-amber-500/20"
+          : "py-2 px-3 rounded-lg border text-sm font-medium bg-neutral-900 border-neutral-800 text-neutral-200 hover:border-neutral-700";
+        btn.innerText = s;
+        btn.onclick = () => {
+          selectedSlotText = s;
+          document.getElementById('btn-to-step-3').disabled = false;
+          renderDaysAndSlots();
+        };
+        slotsContainer.appendChild(btn);
+      });
+    }
+
+    // Submissão do Cliente
+    function handleClientSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('client-input-name').value;
+      const phone = document.getElementById('client-input-phone').value;
+
+      document.getElementById('success-client-name').innerText = name;
+      document.getElementById('success-service-name').innerText = selectedServiceData.name;
+      document.getElementById('success-datetime').innerText = `${selectedDayText} às ${selectedSlotText}`;
+      document.getElementById('success-price').innerText = `R$ ${selectedServiceData.price.toFixed(2)}`;
+
+      const barberPhone = "5549999999999";
+      const message = `Olá! Gostaria de confirmar meu agendamento na *Barbearia do Amigo*:\n\n` +
+        `👤 *Cliente:* ${name}\n` +
+        `💈 *Serviço:* ${selectedServiceData.name}\n` +
+        `📅 *Data/Horário:* ${selectedDayText} às ${selectedSlotText}\n\n` +
+        `Muito obrigado! Aguardo seu retorno.`;
+
+      document.getElementById('whatsapp-confirm-link').href = `https://wa.me/${barberPhone}?text=${encodeURIComponent(message)}`;
+
+      goToClientStep(4);
+    }
+
+    // Modal Encaixe
+    function openWalkInModal() {
+      document.getElementById('walkin-modal').classList.remove('hidden');
+    }
+    function closeWalkInModal() {
+      document.getElementById('walkin-modal').classList.add('hidden');
+    }
+    function handleWalkInSubmit(e) {
+      e.preventDefault();
+      const srv = document.getElementById('modal-service').value;
+      const time = document.getElementById('modal-time').value;
+      const name = document.getElementById('modal-name').value || "Cliente Balcão";
+
+      const list = document.getElementById('admin-appointments-list');
+      const item = document.createElement('div');
+      item.className = "p-3.5 rounded-xl border border-neutral-800 bg-neutral-900 flex items-start justify-between animate-in fade-in";
+      item.innerHTML = `
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-bold text-amber-400">${time}</span>
+            <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-medium border border-amber-500/30">Encaixe Presencial</span>
+          </div>
+          <h3 class="font-semibold text-white text-sm mt-1">${name}</h3>
+          <p class="text-xs text-neutral-400 mt-0.5">${srv}</p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="markStatus(this, 'completed')" class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20" title="Concluir">
+            <i data-lucide="check" class="w-4 h-4"></i>
+          </button>
+          <button onclick="markStatus(this, 'cancelled')" class="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20" title="Cancelar">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `;
+      list.prepend(item);
+      lucide.createIcons();
+      closeWalkInModal();
+    }
+
+    function markStatus(btn, status) {
+      const card = btn.closest('.rounded-xl');
+      if (status === 'completed') {
+        card.className = "p-3.5 rounded-xl border border-emerald-800/30 bg-emerald-950/20 flex items-start justify-between opacity-80";
+        btn.parentElement.innerHTML = '<span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">Concluído</span>';
+      } else {
+        card.className = "p-3.5 rounded-xl border border-neutral-800/40 bg-neutral-900/40 flex items-start justify-between opacity-40";
+        btn.parentElement.innerHTML = '<span class="text-[10px] text-red-400 bg-red-500/10 px-2 py-1 rounded">Cancelado</span>';
+      }
+    }
+  </script>
+</body>
+</html>
